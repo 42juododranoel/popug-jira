@@ -3,10 +3,10 @@ from rest_framework.routers import SimpleRouter
 from django.urls import include
 from django.urls import path
 
-from sepulkas.api import viewsets
+from todos.api import viewsets
 
 router = SimpleRouter()
-router.register('', viewsets.SepulkaViewSet)
+router.register('', viewsets.TodoViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
