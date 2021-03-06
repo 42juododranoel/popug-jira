@@ -53,8 +53,6 @@ flake8-simplify==0.14.0
     # via -r dev-requirements.in
 flake8-variables-names==0.0.4
     # via -r dev-requirements.in
-flake8-walrus==1.1.0
-    # via -r dev-requirements.in
 flake8==3.8.4
     # via
     #   flake8-absolute-import
@@ -69,7 +67,6 @@ flake8==3.8.4
     #   flake8-pytest
     #   flake8-quotes
     #   flake8-simplify
-    #   flake8-walrus
 freezegun==1.1.0
     # via
     #   -r dev-requirements.in
