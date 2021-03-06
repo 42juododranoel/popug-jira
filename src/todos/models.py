@@ -4,11 +4,12 @@ from app.models import DefaultModel
 
 
 class Todo(DefaultModel):
-    text = models.CharField(max_length=255)
+    text = models.TextField()
     assignee = models.ForeignKey(
         'users.User',
         on_delete=models.CASCADE,
     )
+    status = models.CharField(max_length=255, default='opened')
 
     class Meta:
         ordering = ['id']

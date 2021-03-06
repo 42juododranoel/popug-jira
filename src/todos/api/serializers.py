@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from users.api.serializers import UserSerializer
 from todos.models import Todo
+from users.api.serializers import UserSerializer
 
 
 class TodoCreateSerializer(serializers.ModelSerializer):
@@ -31,4 +31,5 @@ class TodoSerializer(serializers.ModelSerializer):
             'id',
             'text',
             'assignee',
+            'status',
         ]
