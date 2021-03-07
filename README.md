@@ -1,65 +1,146 @@
-# Django project
+Фёдор, Антон, я не успел доделать до конца, но начал делить на акторов и команды
 
-This project is bootstrapped using [f213/django](http://github.com/f213/django) template. [Drop a line](https://github.com/f213/django/issues) if you have some issues.
 
-## Project structure
+# Вторая домашка
 
-The main django app is called `app`. It contains `.env` file for django-environ. For examples see `src/app/.env.ci`. Here are some usefull app-wide tools:
-* `app.admin` — app-wide django-admin customizations (empty yet), check out usage [examples](https://github.com/f213/django/tree/master/%7B%7Bcookiecutter.project_slug%7D%7D/src/app/admin)
-* `app.viewset` — default viewset with [per-action serializers](https://github.com/f213/django/blob/master/%7B%7Bcookiecutter.project_slug%7D%7D/src/app/viewsets.py#L13-L28)
-* `app.test.api_client` (available as `api` and `anon` fixtures within pytest) — a [convinient DRF test client](https://github.com/f213/django/blob/master/%7B%7Bcookiecutter.project_slug%7D%7D/src/users/tests/tests_whoami.py#L6-L16).
+## 1. Разобрать каждое требование на составляющие (актор, команда и событие). Определить, какие акторы будут в системе и какие события нужны. 
 
-Django user model is located in the separate `users` app.
+### Таск-трекер
 
-Also, feel free to add as much django apps as you want.
-
-## Installing on a local machine
-This project requires python 3.8. Deps are managed by [pip-tools](https://github.com/jazzband/pip-tools)
-
-Install requirements:
-
-```bash
-$ pip install --upgrade pip pip-tools
-$ make
-$ cd src && cp app/.env.ci app/.env  # default environment variables
-```
-
-```bash
-$ ./manage.py migrate
-$ ./manage.py createsuperuser
-```
-
-Testing:
-```bash
-# run unit tests
-$ pytest
-```
-
-Development servers:
-
-```bash
-# run django dev server
-$ ./manage.py runserver
+1. Таск-трекер должен быть отдельным дашбордом и доступен всем сотрудникам компании UberPopug Inc.
 
 ```
+Actor: любой сотрудник
+Command: считать дашборд тасков
+Data: таски
+Event: дашборд тасков считан
+```
 
-## Backend Code requirements
+2. Авторизация в таск-трекере должна выполняться через общий сервис авторизации UberPopug Inc (у нас там инновационная система авторизации на основе формы клюва).
 
-### Style
+```
+Actor: любой сотрудник
+Command: авторизоваться
+Data: сотрудник, данные для входа
+Event: сотрудник авторизован
+```
 
-* Obey [django's style guide](https://docs.djangoproject.com/en/dev/internals/contributing/writing-code/coding-style/#model-style).
-* Configure your IDE to use [flake8](https://pypi.python.org/pypi/flake8) for checking your python code. For running flake8 manualy, do `cd src && flake8`
-* Prefer English over your native language in comments and commit messages.
-* Commit messages should contain the unique id of issue they are linked to (refs #100500)
-* Every model and a model method should have a docstring.
+3. В таск-трекере должны быть только задачи. Проектов, скоупов и спринтов никому не надо, ибо минимализм.
 
-### Code organisation
+```
+Actor: —
+Command: — 
+Data: задача
+Event: —
+```
 
-* KISS and DRY.
-* Obey [django best practices](http://django-best-practices.readthedocs.io/en/latest/index.html).
-* **No logic is allowed within the views or serializers**. Only models and services. When a model grows beyond 500 lines of code — create a service for that.
-* Use PEP-484 [type hints](https://www.python.org/dev/peps/pep-0484/) when possible.
-* Prefer composition over inheritance.
-* Prefer [Manager](https://docs.djangoproject.com/en/3.0/topics/db/managers/) methods over static models methods.
-* Do not use [signals](https://docs.djangoproject.com/en/3.0/topics/signals/) or [GenericRelations](https://docs.djangoproject.com/en/3.0/ref/contrib/contenttypes/) in your own code.
-* No l10n is allowed in python code, use [django translation](https://docs.djangoproject.com/en/3.0/topics/i18n/translation/).
+4. В таск-трекере новые таски может создавать кто угодно. У задачи должны быть описание, статус (выполнена или нет) и попуг, на которого заассайнена задача.
+
+```
+Actor: любой сотрудник
+Command: создать задачу
+Data: сотрудник, задача (описание, статус, исполнитель)
+Event: задача создана
+```
+
+5. Менеджеры или администраторы должны иметь кнопку «заассайнить задачи», которая возьмет все открытые задачи и рандомно заассайнит каждую на любого из сотрудников. Не успел закрыть задачу до реассайна — сорян, делай следующую.
+
+```
+Actor: сотрудник с ролью менеджера или админа
+Command: заассайнить все задачи
+Data: открытые задачи, исполнители
+Event: задачи заассайнены
+```
+
+6. Каждый сотрудник должен иметь возможность видеть в отдельном месте список заассайненных на него задач + отметить задачу выполненной.
+
+```
+Actor: сотрудник
+Command: считать свои задачи
+Data: сотрудник, его задачи
+Event: сотрудник считал задачи
+
+Actor: сотрудник
+Command: закрыть задачу
+Data: сотрудник, задача
+Event: сотрудник закрыл задачу
+```
+
+7. После ассайна новой задачи сотруднику должно приходить оповещение на почту, в слак и в смс.
+
+```
+Actor: событие «Сотрудник получил задачу»
+Command: отправить оповещения
+Data: сотрудник, задача
+Event: три события — отправить уведомление на почту, в слак и смс
+```
+
+### Аккаунтинг: кто сколько денег заработал
+
+1. Аккаунтинг должен быть в отдельном дашборде и доступным только для администраторов и бухгалтеров.
+
+```
+Actor: сотрудник с ролью админа или бухгалтера
+Command: прочитать дашборд аккаунтинга
+Data: некие данные аккаунтинга, счёт к примеру
+Event: дашборд аккаунтинга считан
+```
+
+2. Авторизация в таск-трекере должна выполняться через общий сервис авторизации UberPopug Inc.
+
+`Это повтор из пункта про таск-трекер`
+
+3. У каждого из сотрудников должен быть свой счет, который показывает, сколько за сегодня он получил денег. У счета должен быть аудитлог того, за что были списаны или начислены деньги, с подробным описанием каждой из задач.
+
+```
+Actor: —
+Command: — 
+Data: счёт сотрудника
+Event: —
+
+Actor: —
+Command: — 
+Data: аудитлог счёта сотрудника
+Event: —
+```
+
+4. Расценки:у сотрудника появилась новая задача — `rand(-10..-20)$`, сотрудник выполнил задачу — `rand(20..40)$`
+
+```
+Actor: событие «Сотрудник получил задачу»
+Command: списать деньги из счёта компании
+Data: счёт компании, счёт сотрудника, сотрудник
+Event: сотруднику на счёт переведены деньги
+
+Actor: событие «Сотрудник закрыл задачу»
+Command: начилить счёту компании деньги
+Data: сотрудник, счёт компании
+Event: на счёт компании начислены деньги
+```
+
+5. Вверху выводить количество заработанных за сегодня денег.
+
+```
+Actor: —
+Command: —
+Data: количество заработанных за сегодня денег ← нужно хранить и обновлять задачами из пункта 4
+Event: — 
+```
+
+6. В конце дня необходимо считать, сколько денег сотрудник получил за рабочий день, слать на почту сумму выплаты.
+
+7. После выплаты баланса (в конце дня) он должен обнуляться и в аудитлоге должно быть отображено, что была выплачена сумма.
+
+8. Дашборд должен выводить информацию по дням, а не за весь период сразу.
+
+
+### Аналитика
+
+1. Аналитика — это отдельный дашборд, доступный только админам.
+2. Нужно указывать, сколько заработал топ-менеджмент: сколько программистов ушло в минус.
+3. Нужно показывать самую дорогую задачу за: день, неделю и месяц.
+
+
+## 2. Построить модель данных и модель доменов. Рисовать можно хоть на листочке, главное, чтобы это было не только у вас в голове, но и где-то вовне.
+
+## 3. Определиться, какие общие данные нужны для разных доменов и как связаны данные между разными доменами.
